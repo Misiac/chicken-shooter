@@ -14,18 +14,20 @@ const char *HTML_CONTENT = R"=====(
       }
       .mainScreen,
       .gameScreen {
-        margin-top: 50px;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        height: 100vh;
       }
       .gameScreen {
         display: none;
+        color: #333; /* Dark gray text */
+        overflow: auto; /* Enable scrolling */
+        max-height: calc(100vh - 200px); /* Adjust based on your layout */
       }
       .title {
-        font-size: 3rem;
+        padding-top: 50px;
+        font-size: 5rem;
         font-weight: bold;
         color: #ff6347; /* Tomato red */
         text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
@@ -38,18 +40,26 @@ const char *HTML_CONTENT = R"=====(
         width: 80%;
         max-width: 300px;
       }
-      .start-button {
+      .player-turn {
+        font-size: 5rem;
+        margin: 20px 0;
+        color: #ff6347; /* Tomato red */
+      }
+      .start-button,
+      .shoot-button {
         background-color: #4caf50; /* Green */
         color: #fff;
         border: none;
-        padding: 10px 20px;
-        font-size: 18px;
+        padding: 15px 30px; /* Increased size */
+        font-size: 40px;
         cursor: pointer;
         border-radius: 5px;
         transition: background-color 0.3s ease;
+        margin-top: 20px;
       }
-      .start-button:hover {
-        background-color: #45a049; /* Darker green */
+      .start-button:hover,
+      .shoot-button:hover {
+        background-color: #45a049; /* Darker green on hover */
       }
       .rules {
         margin-top: 20px;
@@ -70,9 +80,72 @@ const char *HTML_CONTENT = R"=====(
         line-height: 1.6;
         margin-bottom: 10px;
       }
+      .score-table {
+        margin-top: 20px;
+        border-collapse: collapse;
+        width: 80%;
+        max-width: 600px;
+        max-height: 100%; /* Allow table to take full height */
+        overflow-y: auto; /* Enable vertical scrolling */
+      }
+      .score-table th,
+      .score-table td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: center;
+      }
+      .score-table th {
+        background-color: #f2f2f2; /* Light gray */
+        color: #333;
+      }
+      .header {
+        display: none;
+        justify-content: space-between;
+        align-items: flex-start; /* Align items to the top */
+        padding: 10px;
+      }
+      .connected {
+        display: flex;
+        align-items: center;
+        color: green;
+        font-size: 20px;
+        font-weight: bold;
+      }
+      .connected-circle {
+        width: 15px;
+        height: 15px;
+        background-color: green;
+        border-radius: 50%;
+        margin-right: 5px;
+      }
+      .mute-game {
+        color: #555; /* Dark gray text */
+        font-size: 16px;
+        margin-right: 10px;
+        margin-top: 10px;
+        align-self: flex-start;
+      }
+      .round-title {
+        font-size: 4rem;
+        margin: 20px 0;
+        font-weight: bold;
+      }
+      .timer, .result {
+        font-size: 5rem;
+        margin: 20px 0;
+      }
     </style>
   </head>
   <body>
+    <div class="header">
+      <div class="connected" id="connected">
+        <div class="connected-circle"></div>
+        Connected
+      </div>
+      <div class="mute-game">
+        Mute Game
+      </div>
+    </div>
     <!-- MAIN SCREEN -->
     <div class="mainScreen" id="mainScreen">
       <div class="title">Chicken Shooter</div>
@@ -139,9 +212,51 @@ const char *HTML_CONTENT = R"=====(
         </p>
       </div>
     </div>
-    <!-- GAME SCREEN -->
 
-    <div class="gameScreen" id="gameScreen">ssdsd</div>
+    <!-- GAME SCREEN -->
+    <div class="gameScreen" id="gameScreen">
+      <div class="round-title">ROUND 1</div>
+      <div class="player-turn" id="playerTurn">Michal, your turn</div>
+      <button class="shoot-button" id="startTimer" onclick="startTimer()">
+        Start Timer
+      </button>
+      <div class="timer" id="timer">3</div>
+      <div class="result" id="result">SCORE / TOO BAD</div>
+
+      <table class="score-table">
+        <thead>
+          <tr>
+            <th>Player Name</th>
+            <th>Round 1</th>
+            <th>Round 2</th>
+            <th>Round 3</th>
+            <th>Round 4</th>
+            <th>Round 5</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>MICHAŁ</td>
+            <td id="michalRound1"></td>
+            <td id="michalRound2"></td>
+            <td id="michalRound3"></td>
+            <td id="michalRound4"></td>
+            <td id="michalRound5"></td>
+            <td id="michalTotal"></td>
+          </tr>
+          <tr>
+            <td>HANIA</td>
+            <td id="haniaRound1"></td>
+            <td id="haniaRound2"></td>
+            <td id="haniaRound3"></td>
+            <td id="haniaRound4"></td>
+            <td id="haniaRound5"></td>
+            <td id="haniaTotal"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
     <script>
       var ws;
@@ -151,6 +266,11 @@ const char *HTML_CONTENT = R"=====(
       function startGame() {
         var playerNames = ["player1", "player2", "player3", "player4"];
         var playerId = 1;
+
+        //TODO DEBUG
+        document.getElementById("mainScreen").style.display = "none";
+        document.getElementById("gameScreen").style.display = "flex";
+        document.querySelector(".header").style.display = "flex";
 
         playerNames.forEach(function (playerName) {
           var playerNameValue = document.getElementById(playerName).value;
@@ -180,33 +300,10 @@ const char *HTML_CONTENT = R"=====(
       }
 
       function ws_onopen() {
-        // Hide the mainScreen div
         document.getElementById("mainScreen").style.display = "none";
-
-        // Make the gameScreen div visible
-        document.getElementById("gameScreen").style.display = "block";
-
+        document.getElementById("gameScreen").style.display = "flex";
         ws.send("TEST" + "\n");
       }
-
-      // function update_text(text) {
-      //   var chat_messages = document.getElementById("chat-messages");
-      //   chat_messages.innerHTML +=
-      //     '<div style="width:100%;overflow: auto;">' + text + "</div>";
-      //   chat_messages.scrollTop = chat_messages.scrollHeight;
-      // }
-
-      // function send_onclick() {
-      //   if (ws != null) {
-      //     var message = document.getElementById("message").value;
-
-      //     if (message) {
-      //       document.getElementById("message").value = "";
-      //       ws.send(message + "\n");
-      //       update_text('<p class="message-sent">' + message + "</p>");
-      //     }
-      //   }
-      // }
 
       function ws_onclose() {
         ws.onopen = null;
@@ -218,6 +315,10 @@ const char *HTML_CONTENT = R"=====(
       function ws_onmessage(e_msg) {
         e_msg = e_msg || window.event;
         console.log(e_msg.data);
+      }
+
+      function startTimer() {
+        // Implement countdown and result logic here
       }
     </script>
   </body>
