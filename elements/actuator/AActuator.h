@@ -1,6 +1,3 @@
-
-
-#include <Arduino.h>
 #include "../AElement.h"
 #pragma once
 

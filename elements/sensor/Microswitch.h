@@ -1,4 +1,5 @@
-#include <Arduino.h>
+#pragma once
+
 #include "ASensor.h"
 
 class Microswitch : public ASensor

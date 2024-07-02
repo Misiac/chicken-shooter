@@ -1,5 +1,5 @@
+#pragma once
 
-#include <Arduino.h>
 #include "AActuator.h"
 
 class Buzzer : public AActuator

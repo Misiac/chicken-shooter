@@ -3,6 +3,8 @@
 #include "index.h"
 #include "WiFiManager.h"
 #include "ServerRunner.h"
+#include "game/Target.h"
+#include "HardwareAggregator.h"
 
 using namespace net;
 
@@ -17,10 +19,20 @@ void setup() {
 
   Serial.begin(9600);
 
+  Target t1 = Target(LEDDiode(2), Microswitch(3), 10);
+  Target t2 = Target(LEDDiode(2), Microswitch(3), 10);
+  Target t3 = Target(LEDDiode(2), Microswitch(3), 10);
+  Target t4 = Target(LEDDiode(2), Microswitch(3), 10);
+
+  Buzzer buzzer(4,2300);
+  LEDDiode connectLed(5);
+
+  HardwareAggregator hardwareAggregator(
+    t1, t2, t3, t4, buzzer, connectLed);
+
   WiFiManager::connect(ssid, pass);
   server.begin();
-  ServerRunner::configure(wss);
-
+  ServerRunner::configure(wss, hardwareAggregator);
 }
 
 void loop() {
@@ -36,7 +48,7 @@ void loop() {
 
         if (HTTP_header.equals("\r"))  // the end of HTTP request
           break;
-                        //if method == get then main website, if post with names then read names, start new game
+        //if method == get then main website, if post with names then read names, start new game
         Serial.print("<< ");
         Serial.println(HTTP_header);  // print HTTP request to Serial Monitor
       }
