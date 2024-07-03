@@ -22,8 +22,6 @@ const char *HTML_CONTENT = R"=====(
       .gameScreen {
         display: none;
         color: #333; /* Dark gray text */
-        overflow: auto; /* Enable scrolling */
-        max-height: calc(100vh - 200px); /* Adjust based on your layout */
       }
       .title {
         padding-top: 50px;
@@ -85,8 +83,6 @@ const char *HTML_CONTENT = R"=====(
         border-collapse: collapse;
         width: 80%;
         max-width: 600px;
-        max-height: 100%; /* Allow table to take full height */
-        overflow-y: auto; /* Enable vertical scrolling */
       }
       .score-table th,
       .score-table td {
@@ -226,32 +222,39 @@ const char *HTML_CONTENT = R"=====(
       <table class="score-table">
         <thead>
           <tr>
-            <th>Player Name</th>
-            <th>Round 1</th>
-            <th>Round 2</th>
-            <th>Round 3</th>
-            <th>Round 4</th>
-            <th>Round 5</th>
-            <th>Total</th>
+            <th></th> <!-- Empty header for spacing -->
+            <th>MICHAŁ</th>
+            <th>HANIA</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td>MICHAŁ</td>
+            <td>Round 1</td>
             <td id="michalRound1"></td>
-            <td id="michalRound2"></td>
-            <td id="michalRound3"></td>
-            <td id="michalRound4"></td>
-            <td id="michalRound5"></td>
-            <td id="michalTotal"></td>
+            <td id="haniaRound1"></td>
           </tr>
           <tr>
-            <td>HANIA</td>
-            <td id="haniaRound1"></td>
+            <td>Round 2</td>
+            <td id="michalRound2"></td>
             <td id="haniaRound2"></td>
+          </tr>
+          <tr>
+            <td>Round 3</td>
+            <td id="michalRound3"></td>
             <td id="haniaRound3"></td>
+          </tr>
+          <tr>
+            <td>Round 4</td>
+            <td id="michalRound4"></td>
             <td id="haniaRound4"></td>
+          </tr>
+          <tr>
+            <td>Round 5</td>
+            <td id="michalRound5"></td>
             <td id="haniaRound5"></td>
+          <tr>
+            <td>Total</td>
+            <td id="michalTotal"></td>
             <td id="haniaTotal"></td>
           </tr>
         </tbody>
@@ -318,9 +321,10 @@ const char *HTML_CONTENT = R"=====(
       }
 
       function startTimer() {
-        // Implement countdown and result logic here
+        ws.send("TEST" + "\n");
       }
     </script>
   </body>
 </html>
+
 )=====";

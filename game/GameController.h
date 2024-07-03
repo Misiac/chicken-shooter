@@ -1,15 +1,15 @@
+#pragma once
 #include "../HardwareAggregator.h"
 
 class GameController {
-
-
 private:
-  HardwareAggregator hardware;
+  HardwareAggregator& hardware;
 
 public:
-  GameController(HardwareAggregator hardware) {}
+  GameController(HardwareAggregator& hardware)
+    : hardware(hardware) {}
 
-  String react(String message) {
+  String react(const String& message) {
     return "test";
   }
 };

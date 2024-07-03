@@ -5,10 +5,11 @@
 
 class Target {
 private:
-  Microswitch microswitch;
   LEDDiode ledDiode;
+  Microswitch microswitch;
   int pointValue;
 
 public:
-  Target(LEDDiode leddiode, Microswitch microswitchObj, int pointVal);
+  Target(LEDDiode leddiode, Microswitch microswitchObj, int pointVal)
+    : ledDiode(leddiode), microswitch(microswitchObj), pointValue(pointVal) {}
 };

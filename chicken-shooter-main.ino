@@ -27,8 +27,7 @@ void setup() {
   Buzzer buzzer(4,2300);
   LEDDiode connectLed(5);
 
-  HardwareAggregator hardwareAggregator(
-    t1, t2, t3, t4, buzzer, connectLed);
+  HardwareAggregator hardwareAggregator(t1, t2, t3, t4, buzzer, connectLed);
 
   WiFiManager::connect(ssid, pass);
   server.begin();

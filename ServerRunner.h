@@ -5,11 +5,15 @@
 using namespace net;
 
 class ServerRunner {
+
+private:
+  static GameController gameController;
+
 public:
   static void configure(WebSocketServer &wss, HardwareAggregator hwAggregator) {
+    static GameController gameController(hwAggregator);
 
     wss.onConnection([](WebSocket &ws) {
-      GameController gameController(hwAggregator);
       const auto protocol = ws.getProtocol();
       if (protocol) {
         Serial.print(F("Client protocol: "));
@@ -18,16 +22,11 @@ public:
 
       ws.onMessage([](WebSocket &ws, const WebSocket::DataType dataType,
                       const char *message, uint16_t length) {
-        switch (dataType) {
-          // case WebSocket::DataType::TEXT:
-          Serial.print(F("Received: "));
-          Serial.println(message);
-          // break;
-          // case WebSocket::DataType::BINARY:
-          //   Serial.println(F("Received binary data"));
-          //   break;
-        }
+        Serial.print(F("Received: "));
+        Serial.println(message);
+
         String reply = gameController.react(message);
+        Serial.println(reply);
         ws.send(dataType, reply.c_str(), reply.length());
       });
 
@@ -38,9 +37,6 @@ public:
 
       Serial.print(F("New WebSocket Connection from client: "));
       Serial.println(ws.getRemoteIP());
-
-      // const char message[]{ "Hello from Arduino server!" };  // sends message
-      // ws.send(WebSocket::DataType::TEXT, message, strlen(message));
     });
 
     wss.begin();
