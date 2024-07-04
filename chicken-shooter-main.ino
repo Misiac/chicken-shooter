@@ -24,7 +24,7 @@ void setup() {
   Target t3 = Target(LEDDiode(2), Microswitch(3), 10);
   Target t4 = Target(LEDDiode(2), Microswitch(3), 10);
 
-  Buzzer buzzer(4,2300);
+  Buzzer buzzer(4, 2300);
   LEDDiode connectLed(5);
 
   HardwareAggregator hardwareAggregator(t1, t2, t3, t4, buzzer, connectLed);
@@ -52,7 +52,7 @@ void loop() {
         Serial.println(HTTP_header);  // print HTTP request to Serial Monitor
       }
     }
-
+    
     // send the HTTP response header
     client.println("HTTP/1.1 200 OK");
     client.println("Content-Type: text/html");

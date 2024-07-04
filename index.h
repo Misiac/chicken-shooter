@@ -126,7 +126,8 @@ const char *HTML_CONTENT = R"=====(
         margin: 20px 0;
         font-weight: bold;
       }
-      .timer, .result {
+      .timer,
+      .result {
         font-size: 5rem;
         margin: 20px 0;
       }
@@ -138,9 +139,7 @@ const char *HTML_CONTENT = R"=====(
         <div class="connected-circle"></div>
         Connected
       </div>
-      <div class="mute-game">
-        Mute Game
-      </div>
+      <div class="mute-game">Mute Game</div>
     </div>
     <!-- MAIN SCREEN -->
     <div class="mainScreen" id="mainScreen">
@@ -222,8 +221,9 @@ const char *HTML_CONTENT = R"=====(
       <table class="score-table">
         <thead>
           <tr>
-            <th></th> <!-- Empty header for spacing -->
-            <th>MICHAŁ</th>
+            <th></th>
+            <!-- Empty header for spacing -->
+            <th>MICHAL</th>
             <th>HANIA</th>
           </tr>
         </thead>
@@ -252,6 +252,8 @@ const char *HTML_CONTENT = R"=====(
             <td>Round 5</td>
             <td id="michalRound5"></td>
             <td id="haniaRound5"></td>
+          </tr>
+
           <tr>
             <td>Total</td>
             <td id="michalTotal"></td>
@@ -262,31 +264,32 @@ const char *HTML_CONTENT = R"=====(
     </div>
 
     <script>
+      //ACTIONS
+      const START_GAME = "START GAME"; // players names in csv
+      const INITIATE_TIMER = "INITIATE_TIMER"; // INITIATE_TIMER, PLAYERNAME, ROUNDNR
+      const MUTE_GAME = "MUTE GAME"; //mutes buzzer
+
+      //RESPONSES
+      const SET_PLAYERS = "SET PLAYERS"; // SET PLAYERS /n id,name,score
+      const LAST_ROUND_SCORE = "LAST ROUND SCORE"; // LAST ROUND SCORE /id, roundScore, timeBonus
+      const START_TIMER = "START TIMER";
+
       var ws;
       var wsm_max_len = 4096;
+
+      var playerNames = [];
       var players = [];
+      var roundNr = 1;
 
       function startGame() {
-        var playerNames = ["player1", "player2", "player3", "player4"];
-        var playerId = 1;
+        var playerNameFields = ["player1", "player2", "player3", "player4"];
 
-        //TODO DEBUG
-        document.getElementById("mainScreen").style.display = "none";
-        document.getElementById("gameScreen").style.display = "flex";
-        document.querySelector(".header").style.display = "flex";
-
-        playerNames.forEach(function (playerName) {
+        playerNameFields.forEach(function (playerName) {
           var playerNameValue = document.getElementById(playerName).value;
           if (playerNameValue) {
-            var player = {
-              id: playerId++,
-              name: playerNameValue,
-              score: 0,
-            };
-            players.push(player);
+            playerNames.push(playerNameValue);
           }
         });
-        console.log(players);
 
         openWebSocket();
       }
@@ -305,7 +308,9 @@ const char *HTML_CONTENT = R"=====(
       function ws_onopen() {
         document.getElementById("mainScreen").style.display = "none";
         document.getElementById("gameScreen").style.display = "flex";
-        ws.send("TEST" + "\n");
+        document.querySelector(".header").style.display = "flex";
+
+        ws.send(START_GAME +"\n"+ playerNames.map((name) => name).join(",") + "\n");
       }
 
       function ws_onclose() {
@@ -326,5 +331,4 @@ const char *HTML_CONTENT = R"=====(
     </script>
   </body>
 </html>
-
 )=====";
