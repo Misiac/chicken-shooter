@@ -1,3 +1,14 @@
+#include "credentials.h"
 
-#define SECRET_SSID "multimetro16268"
-#define SECRET_PASS "***REMOVED***"
+class CredentialHolder {
+public:
+    CredentialHolder() {}
+
+    const char* getSSID() const {
+        return SECRET_SSID;
+    }
+
+    const char* getPass() const {
+        return SECRET_PASS;
+    }
+};

@@ -5,15 +5,14 @@
 #include "ServerRunner.h"
 #include "game/Target.h"
 #include "HardwareAggregator.h"
+#include "data/CredentialHolder.h"
 
 using namespace net;
 
 WebSocketServer wss(81);
 WiFiServer server(80);
 
-const char ssid[] = "multimetro16268";
-const char pass[] = "***REMOVED***";
-
+CredentialHolder credentials;
 
 void setup() {
 
@@ -29,7 +28,7 @@ void setup() {
 
   HardwareAggregator hardwareAggregator(t1, t2, t3, t4, buzzer, connectLed);
 
-  WiFiManager::connect(ssid, pass);
+  WiFiManager::connect(credentials.getSSID(),credentials.getPass());
   server.begin();
   ServerRunner::configure(wss, hardwareAggregator);
 }
