@@ -103,7 +103,6 @@ const char *HTML_CONTENT = R"=====(
       .connected {
         display: flex;
         align-items: center;
-        color: green;
         font-size: 20px;
         font-weight: bold;
       }
@@ -117,6 +116,7 @@ const char *HTML_CONTENT = R"=====(
       .mute-game {
         color: #555; /* Dark gray text */
         font-size: 16px;
+        font-weight: bold;
         margin-right: 10px;
         margin-top: 10px;
         align-self: flex-start;
@@ -130,6 +130,9 @@ const char *HTML_CONTENT = R"=====(
       .result {
         font-size: 5rem;
         margin: 20px 0;
+      }
+      .total-label {
+        font-weight: bold;
       }
     </style>
   </head>
@@ -220,46 +223,11 @@ const char *HTML_CONTENT = R"=====(
 
       <table class="score-table">
         <thead>
-          <tr>
+          <tr id="headerRow">
             <th></th>
-            <!-- Empty header for spacing -->
-            <th>MICHAL</th>
-            <th>HANIA</th>
           </tr>
         </thead>
-        <tbody>
-          <tr>
-            <td>Round 1</td>
-            <td id="michalRound1"></td>
-            <td id="haniaRound1"></td>
-          </tr>
-          <tr>
-            <td>Round 2</td>
-            <td id="michalRound2"></td>
-            <td id="haniaRound2"></td>
-          </tr>
-          <tr>
-            <td>Round 3</td>
-            <td id="michalRound3"></td>
-            <td id="haniaRound3"></td>
-          </tr>
-          <tr>
-            <td>Round 4</td>
-            <td id="michalRound4"></td>
-            <td id="haniaRound4"></td>
-          </tr>
-          <tr>
-            <td>Round 5</td>
-            <td id="michalRound5"></td>
-            <td id="haniaRound5"></td>
-          </tr>
-
-          <tr>
-            <td>Total</td>
-            <td id="michalTotal"></td>
-            <td id="haniaTotal"></td>
-          </tr>
-        </tbody>
+        <tbody id="scoreTableBody"></tbody>
       </table>
     </div>
 
@@ -269,9 +237,9 @@ const char *HTML_CONTENT = R"=====(
       const INITIATE_TIMER = "INITIATE_TIMER"; // INITIATE_TIMER, PLAYERNAME, ROUNDNR
       const MUTE_GAME = "MUTE GAME"; //mutes buzzer
 
-      //RESPONSES
+      //RESPONSE ACTIONS
       const SET_PLAYERS = "SET PLAYERS"; // SET PLAYERS /n id,name,score
-      const LAST_ROUND_SCORE = "LAST ROUND SCORE"; // LAST ROUND SCORE /id, roundScore, timeBonus
+      const LAST_ROUND_SCORE = "LAST ROUND SCORE"; // LAST ROUND SCORE /n playedId, roundScore, timeBonus
       const START_TIMER = "START TIMER";
 
       var ws;
@@ -310,7 +278,15 @@ const char *HTML_CONTENT = R"=====(
         document.getElementById("gameScreen").style.display = "flex";
         document.querySelector(".header").style.display = "flex";
 
-        ws.send(START_GAME +"\n"+ playerNames.map((name) => name).join(",") + "\n");
+        let messageToSend =
+          START_GAME + "\n" + playerNames.map((name) => name).join(",") + "\n";
+
+        // Log the message to console for debugging
+        console.log("Sending message:");
+        console.log(messageToSend);
+
+        // Send the message via WebSocket
+        ws.send(messageToSend);
       }
 
       function ws_onclose() {
@@ -320,15 +296,88 @@ const char *HTML_CONTENT = R"=====(
         ws = null;
       }
 
-      function ws_onmessage(e_msg) {
-        e_msg = e_msg || window.event;
-        console.log(e_msg.data);
+      function ws_onmessage(message) {
+        response = message.data || window.event;
+        console.log(message.data);
+        let action = getAction(response);
+
+        if (action == SET_PLAYERS) {
+          setPlayers(response);
+          console.log(players);
+        }
+      }
+
+      function setPlayers(response) {
+        let lines = response.split(/\r?\n/);
+        lines.shift();
+        lines.shift();
+
+        lines.forEach(function (line) {
+          if (line.trim() !== "") {
+            let player = line.split(",");
+            players.push({
+              id: player[0].trim(),
+              name: player[1].trim(),
+              score: parseInt(player[2].trim(), 10),
+            });
+          }
+        });
+        generateTable();
+      }
+
+      function getAction(response) {
+        let lines = response.split(/\r?\n/);
+        return lines[0];
       }
 
       function startTimer() {
         ws.send("TEST" + "\n");
       }
+
+      function generateTable() {
+        const headerRow = document.getElementById("headerRow");
+        const scoreTableBody = document.getElementById("scoreTableBody");
+
+        headerRow.innerHTML = "<th></th>";
+        scoreTableBody.innerHTML = "";
+
+        players.forEach((player) => {
+          let th = document.createElement("th");
+          th.textContent = player.name;
+          headerRow.appendChild(th);
+        });
+
+        for (let round = 1; round <= 5; round++) {
+          let tr = document.createElement("tr");
+          let tdRound = document.createElement("td");
+          tdRound.textContent = `Round ${round}`;
+          tr.appendChild(tdRound);
+
+          players.forEach((player) => {
+            let td = document.createElement("td");
+            td.id = `${player.name.toLowerCase()}Round${round}`;
+            tr.appendChild(td);
+          });
+
+          scoreTableBody.appendChild(tr);
+        }
+
+        let totalRow = document.createElement("tr");
+        let tdTotalLabel = document.createElement("td");
+        tdTotalLabel.textContent = "Total";
+        tdTotalLabel.classList.add("total-label");
+        totalRow.appendChild(tdTotalLabel);
+
+        players.forEach((player) => {
+          let tdTotal = document.createElement("td");
+          tdTotal.id = `${player.name.toLowerCase()}Total`;
+          totalRow.appendChild(tdTotal);
+        });
+
+        scoreTableBody.appendChild(totalRow);
+      }
     </script>
   </body>
 </html>
+
 )=====";
