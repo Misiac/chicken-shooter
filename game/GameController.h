@@ -4,6 +4,7 @@
 #include "Actions.h"
 #include "Player.h"
 #include "../util/StringUtils.h"
+#include "../util/CsvUtils.h"
 
 class GameController {
 
@@ -12,6 +13,8 @@ private:
   WebSocket* ws;
   Player* players;
   int numberOfPlayers;
+  int currentTurn = 1;
+  int currentPlayerIndex = 0;
 
 public:
   GameController(HardwareAggregator& hardware)
@@ -22,17 +25,25 @@ public:
   }
 
   void react(const String& message) {
+    Serial.println(message);
+
     String action = getAction(message);
+    String reply = generatePlayersCsv();
 
     if (action == START_GAME) {
-      //port to functions
-      String namesLine = StringUtils::getSpecificLine(message, 1);
 
-      createPlayers(namesLine);
+      createPlayers(StringUtils::getSpecificLine(message, 1));
       String reply = SET_PLAYERS;
       reply += generatePlayersCsv();
-
       const char* replyChar = reply.c_str();
+      ws->send(WebSocket::DataType::TEXT, replyChar, strlen(replyChar));
+
+      String turn = CURRENT_TURN;
+      turn += "\n";
+      turn += currentTurn;
+      turn += ", ";
+      turn += players[currentPlayerIndex].getId();
+      replyChar = turn.c_str();
       ws->send(WebSocket::DataType::TEXT, replyChar, strlen(replyChar));
 
     } else if (action == INITIATE_TIMER) {
@@ -51,39 +62,28 @@ public:
   }
 
   void createPlayers(String playersCsv) {
-    int numberOfPlayers = 0;
-    for (int i = 0; i < playersCsv.length(); i++) {
-      if (playersCsv.charAt(i) == ',') {
-        numberOfPlayers++;
-      }
+    String* names = CsvUtils::parseCSVToArray(playersCsv);
+
+    numberOfPlayers = 0;
+    while (names[numberOfPlayers] != "" && numberOfPlayers < 10) {
+      numberOfPlayers++;
     }
-    numberOfPlayers++;
 
-    int currentIndex = 0;
-    int previousIndex = 0;
-    for (int i = 0; i < playersCsv.length(); i++) {
-      if (playersCsv.charAt(i) == ',' || i == playersCsv.length() - 1) {
-        String playerName = playersCsv.substring(previousIndex, i);  //todo
-        Player currentPlayer(playerName);
-        players[currentIndex] = currentPlayer;
-
-        Serial.println(players[currentIndex].getName());
-
-        currentIndex++;
-        previousIndex = i + 1;
-      }
+    players = new Player[numberOfPlayers];
+    for (int i = 0; i < numberOfPlayers; i++) {
+      players[i] = Player(names[i]);
     }
   }
 
   const char* generatePlayersCsv() {
 
     String csv = "id,name,score\n";
+
     for (int i = 0; i < numberOfPlayers; i++) {
       csv += String(players[i].getId()) + "," + players[i].getName() + "," + String(players[i].getScore()) + "\n";
     }
     return csv.c_str();
   }
-
   void switchBuzzerState() {
   }
 };
