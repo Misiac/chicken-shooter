@@ -1,6 +1,6 @@
 #include <WiFiS3.h>
 #include <WebSocketServer.h>
-#include "index.h"
+#include "PageHolder.h"
 #include "WiFiManager.h"
 #include "ServerRunner.h"
 #include "game/Target.h"
@@ -39,19 +39,7 @@ void loop() {
   // listen for incoming clients
   WiFiClient client = server.available();
   if (client) {
-    // read the HTTP request header line by line
-    while (client.connected()) {
-      if (client.available()) {
-        String HTTP_header = client.readStringUntil('\n');  // read the header line of HTTP request
 
-        if (HTTP_header.equals("\r"))  // the end of HTTP request
-          break;
-        //if method == get then main website, if post with names then read names, start new game
-        Serial.print("<< ");
-        Serial.println(HTTP_header);  // print HTTP request to Serial Monitor
-      }
-    }
-    
     // send the HTTP response header
     client.println("HTTP/1.1 200 OK");
     client.println("Content-Type: text/html");

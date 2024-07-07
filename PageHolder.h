@@ -130,6 +130,7 @@ const char *HTML_CONTENT = R"=====(
       .result {
         font-size: 5rem;
         margin: 20px 0;
+        display: none;
       }
       .total-label {
         font-weight: bold;
@@ -214,7 +215,7 @@ const char *HTML_CONTENT = R"=====(
     <!-- GAME SCREEN -->
     <div class="gameScreen" id="gameScreen">
       <div class="round-title">ROUND 1</div>
-      <div class="player-turn" id="playerTurn">Michal, your turn</div>
+      <div class="player-turn" id="playerTurn"></div>
       <button class="shoot-button" id="startTimer" onclick="startTimer()">
         Start Timer
       </button>
@@ -234,21 +235,20 @@ const char *HTML_CONTENT = R"=====(
     <script>
       //ACTIONS
       const START_GAME = "START GAME"; // players names in csv
-      const INITIATE_TIMER = "INITIATE_TIMER"; // INITIATE_TIMER, PLAYERNAME, ROUNDNR
+      const INITIATE_TIMER = "INITIATE_TIMER"; // INITIATE_TIMER
       const MUTE_GAME = "MUTE GAME"; //mutes buzzer
 
       //RESPONSE ACTIONS
       const SET_PLAYERS = "SET PLAYERS"; // SET PLAYERS /n id,name,score
       const LAST_ROUND_SCORE = "LAST ROUND SCORE"; // LAST ROUND SCORE /n playedId, roundScore, timeBonus
       const START_TIMER = "START TIMER";
-      const CURRENT_TURN = "CURRENT TURN" // CURRENT_TURN /n roundNr, playerId
+      const CURRENT_TURN = "CURRENT TURN"; // CURRENT_TURN /n roundNr, playerId
 
       var ws;
       var wsm_max_len = 4096;
 
       var playerNames = [];
       var players = [];
-      var roundNr = 1;
 
       function startGame() {
         var playerNameFields = ["player1", "player2", "player3", "player4"];
@@ -304,21 +304,20 @@ const char *HTML_CONTENT = R"=====(
 
         if (action == SET_PLAYERS) {
           setPlayers(response);
-        }else if(action == CURRENT_TURN){
-
+        } else if (action == CURRENT_TURN) {
           let lines = response.split(/\r?\n/);
-          let parts = lines[1].split(',');
+          let parts = lines[1].split(",");
           let roundNr = parts[0].trim();
           let playerId = parts[1].trim();
-          
-          
-          console.log(players);
-          console.log(players[0].id);
-          console.log(playerId);
-          let playerName = players.find(player => player.id == playerId).name;
 
-          document.getElementById("playerTurn").textContent = `${playerName}, your turn`;
-          document.querySelector(".round-title").textContent = `ROUND ${roundNr}`;
+          let playerName = players.find((player) => player.id == playerId).name;
+
+          document.getElementById(
+            "playerTurn"
+          ).textContent = `${playerName}, your turn`;
+          document.querySelector(
+            ".round-title"
+          ).textContent = `ROUND ${roundNr}`;
         }
       }
 
@@ -346,7 +345,7 @@ const char *HTML_CONTENT = R"=====(
       }
 
       function startTimer() {
-        ws.send("TEST" + "\n");
+        ws.send(INITIATE_TIMER);
       }
 
       function generateTable() {
@@ -394,6 +393,5 @@ const char *HTML_CONTENT = R"=====(
     </script>
   </body>
 </html>
-
 
 )=====";

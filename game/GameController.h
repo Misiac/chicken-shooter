@@ -31,22 +31,11 @@ public:
     String reply = generatePlayersCsv();
 
     if (action == START_GAME) {
-
-      createPlayers(StringUtils::getSpecificLine(message, 1));
-      String reply = SET_PLAYERS;
-      reply += generatePlayersCsv();
-      const char* replyChar = reply.c_str();
-      ws->send(WebSocket::DataType::TEXT, replyChar, strlen(replyChar));
-
-      String turn = CURRENT_TURN;
-      turn += "\n";
-      turn += currentTurn;
-      turn += ", ";
-      turn += players[currentPlayerIndex].getId();
-      replyChar = turn.c_str();
-      ws->send(WebSocket::DataType::TEXT, replyChar, strlen(replyChar));
-
+      startGame(message);
+      sendCurrentTurn();
     } else if (action == INITIATE_TIMER) {
+
+      initiateTimer();
 
     } else if (action == MUTE_GAME) {
 
@@ -55,6 +44,31 @@ public:
       const char* reply = "ERROR";
       ws->send(WebSocket::DataType::TEXT, reply, strlen(reply));
     }
+  }
+
+  void startGame(String message) {
+    createPlayers(StringUtils::getSpecificLine(message, 1));
+    String reply = SET_PLAYERS;
+    reply += generatePlayersCsv();
+    const char* replyChar = reply.c_str();
+    ws->send(WebSocket::DataType::TEXT, replyChar, strlen(replyChar));
+  }
+
+  void sendCurrentTurn() {
+    String turn = CURRENT_TURN;
+    turn += "\n";
+    turn += currentTurn;
+    turn += ", ";
+    turn += players[currentPlayerIndex].getId();
+    const char* replyChar = turn.c_str();
+    ws->send(WebSocket::DataType::TEXT, replyChar, strlen(replyChar));
+  }
+
+  void initiateTimer() {
+    //start buzzer // send startTimer
+    String reply = START_TIMER;
+    const char* replyChar = reply.c_str();
+    ws->send(WebSocket::DataType::TEXT, replyChar, strlen(replyChar));
   }
 
   String getAction(String text) {

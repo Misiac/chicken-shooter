@@ -214,7 +214,7 @@
     <!-- GAME SCREEN -->
     <div class="gameScreen" id="gameScreen">
       <div class="round-title">ROUND 1</div>
-      <div class="player-turn" id="playerTurn">Michal, your turn</div>
+      <div class="player-turn" id="playerTurn"></div>
       <button class="shoot-button" id="startTimer" onclick="startTimer()">
         Start Timer
       </button>
@@ -234,7 +234,7 @@
     <script>
       //ACTIONS
       const START_GAME = "START GAME"; // players names in csv
-      const INITIATE_TIMER = "INITIATE_TIMER"; // INITIATE_TIMER, PLAYERNAME, ROUNDNR
+      const INITIATE_TIMER = "INITIATE_TIMER"; // INITIATE_TIMER
       const MUTE_GAME = "MUTE GAME"; //mutes buzzer
 
       //RESPONSE ACTIONS
@@ -344,7 +344,7 @@
       }
 
       function startTimer() {
-        ws.send("" + "\n");
+        ws.send(INITIATE_TIMER);
       }
 
       function generateTable() {
