@@ -18,12 +18,12 @@ void setup() {
 
   Serial.begin(9600);
 
-  Target t1 = Target(LEDDiode(2), Microswitch(3), 10);
-  Target t2 = Target(LEDDiode(2), Microswitch(3), 10);
-  Target t3 = Target(LEDDiode(2), Microswitch(3), 10);
-  Target t4 = Target(LEDDiode(2), Microswitch(3), 10);
+  Target t1 = Target(LEDDiode(2), Microswitch(8), 10);
+  Target t2 = Target(LEDDiode(2), Microswitch(8), 10);
+  Target t3 = Target(LEDDiode(2), Microswitch(8), 10);
+  Target t4 = Target(LEDDiode(2), Microswitch(8), 10);
 
-  Buzzer buzzer(4, 2300);
+  Buzzer buzzer(9, 2300);
   LEDDiode connectLed(5);
 
   HardwareAggregator hardwareAggregator(t1, t2, t3, t4, buzzer, connectLed);

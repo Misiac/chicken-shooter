@@ -2,20 +2,20 @@
 
 #include "ASensor.h"
 
-class Microswitch : public ASensor
-{
+class Microswitch : public ASensor {
 
 private:
-    int pin;
+  int pin;
+
 
 public:
-    Microswitch(int pin)
-    {
-        pin = pin;
-        pinMode(pin, INPUT_PULLUP);
-    }
+  Microswitch(int aPin) {
+    pin = aPin;
+    pinMode(pin, INPUT_PULLUP);
+  }
 
-    virtual float sense() override
-    {
-    }
+  virtual float sense() override {
+    int read = digitalRead(pin);
+    return (read == 1) ? 0 : 1;
+  }
 };
