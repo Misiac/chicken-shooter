@@ -1,5 +1,5 @@
 #pragma once
-#include "../HardwareAggregator.h"
+#include "../HardwareController.h"
 #include <WebSocket.h>
 #include "Actions.h"
 #include "Player.h"
@@ -9,16 +9,17 @@
 class GameController {
 
 private:
-  HardwareAggregator& hardware;
+  HardwareController& hwController;
   WebSocket* ws;
   Player* players;
   int numberOfPlayers;
   int currentTurn = 1;
   int currentPlayerIndex = 0;
+  const int TURN_TIME = 7000;
 
 public:
-  GameController(HardwareAggregator& hardware)
-    : hardware(hardware), ws(nullptr) {}
+  GameController(HardwareController& hwController)
+    : hwController(hwController), ws(nullptr) {}
 
   void setWebSocket(WebSocket& webSocket) {
     ws = &webSocket;
@@ -65,10 +66,34 @@ public:
   }
 
   void initiateTimer() {
-    //start buzzer // send startTimer
+    //start buzzer
     String reply = START_TIMER;
     const char* replyChar = reply.c_str();
     ws->send(WebSocket::DataType::TEXT, replyChar, strlen(replyChar));
+    executeTurn();
+  }
+
+  void executeTurn() {
+
+    Serial.println("execute turn");
+
+      int startMs = millis();
+    while (millis() - startMs < TURN_TIME) {
+
+      int points = hwController.handleTargetsAndReturnPoints();
+      if (points > 0) {
+        //play buzzer
+        //send info to front
+        String reply = "JAAAAAA";                                           //debug
+        const char* replyChar = reply.c_str();                              //debug
+        ws->send(WebSocket::DataType::TEXT, replyChar, strlen(replyChar));  //debug
+        break;
+      }
+    }
+    //time's up, play negative buzzer and send 0 score to front
+    String reply = "NICHT";                                             //debug
+    const char* replyChar = reply.c_str();                              //debug
+    ws->send(WebSocket::DataType::TEXT, replyChar, strlen(replyChar));  //debug
   }
 
   String getAction(String text) {

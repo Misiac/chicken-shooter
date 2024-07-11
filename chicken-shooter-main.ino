@@ -4,7 +4,7 @@
 #include "WiFiManager.h"
 #include "ServerRunner.h"
 #include "game/Target.h"
-#include "HardwareAggregator.h"
+#include "HardwareController.h"
 #include "data/CredentialHolder.h"
 
 using namespace net;
@@ -18,19 +18,19 @@ void setup() {
 
   Serial.begin(9600);
 
-  Target t1 = Target(LEDDiode(2), Microswitch(8), 10);
-  Target t2 = Target(LEDDiode(2), Microswitch(8), 10);
-  Target t3 = Target(LEDDiode(2), Microswitch(8), 10);
-  Target t4 = Target(LEDDiode(2), Microswitch(8), 10);
+  Target t1 = Target(LEDDiode(2), Microswitch(5), 10);
+  Target t2 = Target(LEDDiode(2), Microswitch(5), 10);
+  Target t3 = Target(LEDDiode(2), Microswitch(5), 10);
+  Target t4 = Target(LEDDiode(2), Microswitch(7), 10);
 
   Buzzer buzzer(9, 2300);
   LEDDiode connectLed(5);
 
-  HardwareAggregator hardwareAggregator(t1, t2, t3, t4, buzzer, connectLed);
+  HardwareController hardwareController(t1, t2, t3, t4, buzzer, connectLed);
 
-  WiFiManager::connect(credentials.getSSID(),credentials.getPass());
+  WiFiManager::connect(credentials.getSSID(), credentials.getPass());
   server.begin();
-  ServerRunner::configure(wss, hardwareAggregator);
+  ServerRunner::configure(wss, hardwareController);
 }
 
 void loop() {

@@ -1,9 +1,10 @@
 const char *HTML_CONTENT = R"=====(
 <!DOCTYPE html>
-<html>
+<html lang="en-US">
   <head>
+    <meta charset="utf-8">
     <title>Chicken Shooter Game</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
       body {
         font-family: Arial, sans-serif;
@@ -130,7 +131,7 @@ const char *HTML_CONTENT = R"=====(
       .result {
         font-size: 5rem;
         margin: 20px 0;
-        display: none;
+        display:none;
       }
       .total-label {
         font-weight: bold;
@@ -215,8 +216,8 @@ const char *HTML_CONTENT = R"=====(
     <!-- GAME SCREEN -->
     <div class="gameScreen" id="gameScreen">
       <div class="round-title">ROUND 1</div>
-      <div class="player-turn" id="playerTurn"></div>
-      <button class="shoot-button" id="startTimer" onclick="startTimer()">
+      <div class="player-turn" id="playerTurn">Michal, your turn</div>
+      <button class="shoot-button" id="startTimer" onclick="initiateTimer()">
         Start Timer
       </button>
       <div class="timer" id="timer">3</div>
@@ -235,20 +236,20 @@ const char *HTML_CONTENT = R"=====(
     <script>
       //ACTIONS
       const START_GAME = "START GAME"; // players names in csv
-      const INITIATE_TIMER = "INITIATE_TIMER"; // INITIATE_TIMER
+      const INITIATE_TIMER = "INITIATE_TIMER"; // INITIATE_TIMER, PLAYERNAME, ROUNDNR
       const MUTE_GAME = "MUTE GAME"; //mutes buzzer
 
       //RESPONSE ACTIONS
       const SET_PLAYERS = "SET PLAYERS"; // SET PLAYERS /n id,name,score
       const LAST_ROUND_SCORE = "LAST ROUND SCORE"; // LAST ROUND SCORE /n playedId, roundScore, timeBonus
       const START_TIMER = "START TIMER";
-      const CURRENT_TURN = "CURRENT TURN"; // CURRENT_TURN /n roundNr, playerId
 
       var ws;
       var wsm_max_len = 4096;
 
       var playerNames = [];
       var players = [];
+      var roundNr = 1;
 
       function startGame() {
         var playerNameFields = ["player1", "player2", "player3", "player4"];
@@ -304,23 +305,15 @@ const char *HTML_CONTENT = R"=====(
 
         if (action == SET_PLAYERS) {
           setPlayers(response);
-        } else if (action == CURRENT_TURN) {
-          let lines = response.split(/\r?\n/);
-          let parts = lines[1].split(",");
-          let roundNr = parts[0].trim();
-          let playerId = parts[1].trim();
-
-          let playerName = players.find((player) => player.id == playerId).name;
-
-          document.getElementById(
-            "playerTurn"
-          ).textContent = `${playerName}, your turn`;
-          document.querySelector(
-            ".round-title"
-          ).textContent = `ROUND ${roundNr}`;
+        } else if (action == START_TIMER) {
+          startTimer();
         }
       }
 
+      function initiateTimer(){
+        ws.send(INITIATE_TIMER);
+
+      }
       function setPlayers(response) {
         let lines = response.split(/\r?\n/);
         lines.shift();
@@ -339,13 +332,29 @@ const char *HTML_CONTENT = R"=====(
         generateTable();
       }
 
+      function startTimer() {
+        document.getElementById("startTimer").style.display = "none";
+        const timerDiv = document.getElementById("timer");
+        timerDiv.style.display = "block";
+
+        let countdown = 3;
+        timerDiv.textContent = countdown;
+
+        const interval = setInterval(() => {
+          countdown--;
+          if (countdown > 0) {
+            timerDiv.textContent = countdown;
+          } else if (countdown === 0) {
+            timerDiv.textContent = "Shoot";
+          } else {
+            clearInterval(interval);
+          }
+        }, 1000);
+      }
+
       function getAction(response) {
         let lines = response.split(/\r?\n/);
         return lines[0];
-      }
-
-      function startTimer() {
-        ws.send(INITIATE_TIMER);
       }
 
       function generateTable() {
@@ -393,5 +402,4 @@ const char *HTML_CONTENT = R"=====(
     </script>
   </body>
 </html>
-
 )=====";

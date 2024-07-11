@@ -1,8 +1,9 @@
 <!DOCTYPE html>
-<html>
+<html lang="en-US">
   <head>
+    <meta charset="utf-8">
     <title>Chicken Shooter Game</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
       body {
         font-family: Arial, sans-serif;
@@ -129,6 +130,7 @@
       .result {
         font-size: 5rem;
         margin: 20px 0;
+        display:none;
       }
       .total-label {
         font-weight: bold;
@@ -214,7 +216,7 @@
     <div class="gameScreen" id="gameScreen">
       <div class="round-title">ROUND 1</div>
       <div class="player-turn" id="playerTurn">Michal, your turn</div>
-      <button class="shoot-button" id="startTimer" onclick="startTimer()">
+      <button class="shoot-button" id="startTimer" onclick="initiateTimer()">
         Start Timer
       </button>
       <div class="timer" id="timer">3</div>
@@ -302,10 +304,15 @@
 
         if (action == SET_PLAYERS) {
           setPlayers(response);
-          console.log(players);
+        } else if (action == START_TIMER) {
+          startTimer();
         }
       }
 
+      function initiateTimer(){
+        ws.send(INITIATE_TIMER);
+
+      }
       function setPlayers(response) {
         let lines = response.split(/\r?\n/);
         lines.shift();
@@ -324,13 +331,29 @@
         generateTable();
       }
 
+      function startTimer() {
+        document.getElementById("startTimer").style.display = "none";
+        const timerDiv = document.getElementById("timer");
+        timerDiv.style.display = "block";
+
+        let countdown = 3;
+        timerDiv.textContent = countdown;
+
+        const interval = setInterval(() => {
+          countdown--;
+          if (countdown > 0) {
+            timerDiv.textContent = countdown;
+          } else if (countdown === 0) {
+            timerDiv.textContent = "Shoot";
+          } else {
+            clearInterval(interval);
+          }
+        }, 1000);
+      }
+
       function getAction(response) {
         let lines = response.split(/\r?\n/);
         return lines[0];
-      }
-
-      function startTimer() {
-        ws.send("TEST" + "\n");
       }
 
       function generateTable() {

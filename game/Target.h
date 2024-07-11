@@ -12,4 +12,15 @@ private:
 public:
   Target(LEDDiode leddiode, Microswitch microswitchObj, int pointVal)
     : ledDiode(leddiode), microswitch(microswitchObj), pointValue(pointVal) {}
+
+  LEDDiode& getLedDiode() {
+    return ledDiode;
+  }
+
+  int getPointsIfHit() {
+    if (microswitch.sense() == 1) {
+      return pointValue;
+    }
+    return 0;
+  }
 };
