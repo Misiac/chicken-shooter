@@ -1,5 +1,5 @@
 #include <WebSocketServer.h>
-#include "HardwareAggregator.h"
+#include "HardwareController.h"
 #include "game/GameController.h"
 
 using namespace net;

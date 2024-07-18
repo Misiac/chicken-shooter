@@ -21,7 +21,7 @@ public:
   int handleTargetsAndReturnPoints() {
     int points;
     for (int i = 0; i < NUM_TARGETS; ++i) {
-      points == targets[i].getPointsIfHit();
+      points = targets[i].getPointsIfHit();
 
       if (points > 0) {
         //hit buzzer, diode for a 0,5sec or so

@@ -18,7 +18,7 @@ public:
   }
 
   int getPointsIfHit() {
-    if (microswitch.sense() == 1) {
+    if (microswitch.sense() == 1.0f) {
       return pointValue;
     }
     return 0;

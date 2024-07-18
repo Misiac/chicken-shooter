@@ -14,8 +14,9 @@ public:
     pinMode(pin, INPUT_PULLUP);
   }
 
-  virtual float sense() override {
+virtual float sense() override {
     int read = digitalRead(pin);
-    return (read == 1) ? 0 : 1;
-  }
+    return (read == 1) ? 0.0f : 1.0f;
+}
+
 };
