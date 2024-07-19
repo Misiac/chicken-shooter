@@ -18,19 +18,12 @@ void setup() {
 
   Serial.begin(9600);
 
-  Target t1 = Target(LEDDiode(2), Microswitch(5), 10);
-  Target t2 = Target(LEDDiode(2), Microswitch(5), 10);
-  Target t3 = Target(LEDDiode(2), Microswitch(5), 10);
-  Target t4 = Target(LEDDiode(2), Microswitch(7), 10);
+  Microswitch test(3);
 
-  Buzzer buzzer(9, 2300);
-  LEDDiode connectLed(5);
-
-  HardwareController hardwareController(t1, t2, t3, t4, buzzer, connectLed);
 
   WiFiManager::connect(credentials.getSSID(), credentials.getPass());
   server.begin();
-  ServerRunner::configure(wss, hardwareController);
+  ServerRunner::configure(wss);
 }
 
 void loop() {

@@ -9,22 +9,22 @@
 class GameController {
 
 private:
-  HardwareController& hwController;
+  HardwareController hwController;
   WebSocket* ws;
   Player* players;
   int numberOfPlayers;
   int currentTurn = 1;
   int currentPlayerIndex = 0;
   const int TURN_TIME = 7000;
+  const int TIMER_TIME = 3000;
 
 public:
-  GameController(HardwareController& hwController)
-    : hwController(hwController), ws(nullptr) {}
+  GameController()
+    : hwController(), ws(nullptr) {}
 
   void setWebSocket(WebSocket& webSocket) {
     ws = &webSocket;
   }
-
   void react(const String& message) {
     Serial.println(message);
 
@@ -74,26 +74,42 @@ public:
   }
 
   void executeTurn() {
-
     Serial.println("execute turn");
 
-      int startMs = millis();
-    while (millis() - startMs < TURN_TIME) {
+    delay(TIMER_TIME);  // here play 3...2...1
+    Serial.println("start");
 
-      int points = hwController.handleTargetsAndReturnPoints();
+    unsigned long startMs = millis();
+    unsigned long endMs;
+    int points = 0;
+
+    while (millis() - startMs < TURN_TIME) {
+      points = hwController.handleTargetsAndReturnPoints();
       if (points > 0) {
         //play buzzer
-        //send info to front
-        String reply = "JAAAAAA";                                           //debug
-        const char* replyChar = reply.c_str();                              //debug
-        ws->send(WebSocket::DataType::TEXT, replyChar, strlen(replyChar));  //debug
+        endMs = millis();
         break;
       }
     }
-    //time's up, play negative buzzer and send 0 score to front
-    String reply = "NICHT";                                             //debug
-    const char* replyChar = reply.c_str();                              //debug
-    ws->send(WebSocket::DataType::TEXT, replyChar, strlen(replyChar));  //debug
+
+    if (points == 0) {
+      endMs = millis();
+    }
+
+    float elapsedTimeInSeconds = (endMs - startMs) / 1000.0;
+    float remainingTimeInSeconds = max(0.0, (TURN_TIME / 1000.0) - elapsedTimeInSeconds);
+    int score = points * remainingTimeInSeconds;
+
+    char reply[64];  // Adjust size if needed
+    snprintf(reply, sizeof(reply),
+             "%s\n%d,%d,%d,%.3f",
+             LAST_ROUND_SCORE,
+             currentTurn,
+             players[currentPlayerIndex].getId(),
+             score,
+             elapsedTimeInSeconds);
+
+    ws->send(WebSocket::DataType::TEXT, reply, strlen(reply));
   }
 
   String getAction(String text) {

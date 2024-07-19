@@ -9,8 +9,8 @@ private:
   static GameController gameController;
 
 public:
-  static void configure(WebSocketServer& wss, HardwareController& hwController) {
-    static GameController gameController(hwController);
+  static void configure(WebSocketServer& wss) {
+    static GameController gameController;
 
     wss.onConnection([](WebSocket& ws) {
       const auto protocol = ws.getProtocol();

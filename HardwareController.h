@@ -3,6 +3,7 @@
 #include "game/Target.h"
 #include "elements/actuator/LEDDiode.h"
 #include "elements/actuator/Buzzer.h"
+#include "elements/sensor/Microswitch.h"
 
 class HardwareController {
 private:
@@ -12,24 +13,27 @@ private:
   Buzzer buzzer;
 
 public:
-  HardwareController(Target target1, Target target2, Target target3, Target target4, Buzzer buzzer, LEDDiode connectLed)
-    : targets{ target1, target2, target3, target4 },
-      buzzer(buzzer),
-      connectDiode(connectLed) {
+  HardwareController()
+    : targets{
+        Target(LEDDiode(2), Microswitch(3), 40),
+        Target(LEDDiode(2), Microswitch(3), 30),
+        Target(LEDDiode(2), Microswitch(3), 20),
+        Target(LEDDiode(2), Microswitch(3), 10)
+      },
+      buzzer(9, 2300), connectDiode(5) {
   }
 
   int handleTargetsAndReturnPoints() {
-    int points;
-    for (int i = 0; i < NUM_TARGETS; ++i) {
+
+    int points = 0;
+    for (int i = 0; i < NUM_TARGETS; i++) {
       points = targets[i].getPointsIfHit();
 
       if (points > 0) {
-        //hit buzzer, diode for a 0,5sec or so
         targets[i].getLedDiode().turnOn();
-        break;
+        return points;
       }
     }
-
     return 0;
   }
 };
