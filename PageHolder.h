@@ -2,9 +2,9 @@ const char *HTML_CONTENT = R"=====(
 <!DOCTYPE html>
 <html lang="en-US">
   <head>
-    <meta charset="utf-8">
+    <meta charset="utf-8" />
     <title>Chicken Shooter Game</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <style>
       body {
         font-family: Arial, sans-serif;
@@ -131,7 +131,7 @@ const char *HTML_CONTENT = R"=====(
       .result {
         font-size: 5rem;
         margin: 20px 0;
-        display:none;
+        display: none;
       }
       .total-label {
         font-weight: bold;
@@ -215,7 +215,7 @@ const char *HTML_CONTENT = R"=====(
 
     <!-- GAME SCREEN -->
     <div class="gameScreen" id="gameScreen">
-      <div class="round-title">ROUND 1</div>
+      <div class="round-title" id="roundTitle">ROUND 1</div>
       <div class="player-turn" id="playerTurn">Michal, your turn</div>
       <button class="shoot-button" id="startTimer" onclick="initiateTimer()">
         Start Timer
@@ -241,7 +241,7 @@ const char *HTML_CONTENT = R"=====(
 
       //RESPONSE ACTIONS
       const SET_PLAYERS = "SET PLAYERS"; // SET PLAYERS /n id,name,score
-      const LAST_ROUND_SCORE = "LAST ROUND SCORE"; // LAST ROUND SCORE /n playedId, roundScore, timeBonus
+      const LAST_ROUND_SCORE = "LAST ROUND SCORE"; // LAST ROUND SCORE /n roundNr, playedId, roundScore, shootTime
       const START_TIMER = "START TIMER";
 
       var ws;
@@ -289,6 +289,9 @@ const char *HTML_CONTENT = R"=====(
 
         // Send the message via WebSocket
         ws.send(messageToSend);
+
+        document.getElementById("playerTurn").textContent =
+          playerNames[0] + ", your turn";
       }
 
       function ws_onclose() {
@@ -307,13 +310,63 @@ const char *HTML_CONTENT = R"=====(
           setPlayers(response);
         } else if (action == START_TIMER) {
           startTimer();
+        } else if (action == LAST_ROUND_SCORE) {
+          setRoundScore(response);
         }
       }
 
-      function initiateTimer(){
+      function initiateTimer() {
         ws.send(INITIATE_TIMER);
-
       }
+
+      function setRoundScore(response) {
+        let lines = response.split(/\r?\n/);
+
+        let [round, playerId, roundScore, timeBonus] = lines[1]
+          .split(",")
+          .map((item) => item.trim());
+
+        round = parseInt(round, 10);
+        roundScore = parseInt(roundScore, 10);
+
+        document.getElementById("timer").style.display = "none";
+
+        let player = players.find((player) => player.id === playerId);
+        player.score += roundScore;
+
+        let result = document.getElementById("result");
+        let playerName = player.name;
+        result.textContent = `${playerName}'s score: ${roundScore} Time: ${timeBonus}s`;
+
+        let playerRoundScore = document.getElementById(
+          `${player.name.toLowerCase()}Round${round}`
+        );
+        playerRoundScore.textContent = `${roundScore}`;
+
+        let playerTotal = document.getElementById(
+          `${player.name.toLowerCase()}Total`
+        );
+        playerTotal.textContent = player.score;
+
+        document.getElementById("result").style.display = "block";
+
+        document.getElementById("startTimer").style.display = "block";
+
+        let nextPlayerId;
+        if (parseInt(player.id, 10) === players.length) {
+          roundNr++;
+          nextPlayerId = 1;
+          document.getElementById(
+            "roundTitle"
+          ).textContent = `ROUND ${roundNr}`;
+        } else {
+          nextPlayerId = parseInt(player.id, 10) + 1; // Ensure player is defined and has the expected id property
+        }
+        document.getElementById("playerTurn").textContent =
+          players.find((player) => player.id === nextPlayerId.toString()).name +
+          ", your turn";
+      }
+
       function setPlayers(response) {
         let lines = response.split(/\r?\n/);
         lines.shift();
@@ -402,4 +455,5 @@ const char *HTML_CONTENT = R"=====(
     </script>
   </body>
 </html>
+
 )=====";

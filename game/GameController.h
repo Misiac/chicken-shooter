@@ -110,6 +110,14 @@ public:
              elapsedTimeInSeconds);
 
     ws->send(WebSocket::DataType::TEXT, reply, strlen(reply));
+
+    if (currentPlayerIndex + 1 == numberOfPlayers) {
+      currentTurn++;
+      currentPlayerIndex = 0;
+    } else {
+      currentPlayerIndex++;
+    }
+    Serial.println(currentPlayerIndex);
   }
 
   String getAction(String text) {
