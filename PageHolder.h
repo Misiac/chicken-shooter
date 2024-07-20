@@ -136,6 +136,14 @@ const char *HTML_CONTENT = R"=====(
       .total-label {
         font-weight: bold;
       }
+      .end-screen {
+        display: none;
+        font-size: 5rem;
+        font-weight: bold;
+        color: #333; 
+        text-align: center; 
+        padding: 20px; 
+      }
     </style>
   </head>
   <body>
@@ -222,6 +230,7 @@ const char *HTML_CONTENT = R"=====(
       </button>
       <div class="timer" id="timer">3</div>
       <div class="result" id="result">SCORE / TOO BAD</div>
+      <div class="end-screen" id="endScreen"></div>
 
       <table class="score-table">
         <thead>
@@ -235,13 +244,13 @@ const char *HTML_CONTENT = R"=====(
 
     <script>
       //ACTIONS
-      const START_GAME = "START GAME"; // players names in csv
-      const INITIATE_TIMER = "INITIATE_TIMER"; // INITIATE_TIMER, PLAYERNAME, ROUNDNR
-      const MUTE_GAME = "MUTE GAME"; //mutes buzzer
+      const START_GAME = "START GAME"; 
+      const INITIATE_TIMER = "INITIATE_TIMER"; 
+      const MUTE_GAME = "MUTE GAME"; 
 
       //RESPONSE ACTIONS
-      const SET_PLAYERS = "SET PLAYERS"; // SET PLAYERS /n id,name,score
-      const LAST_ROUND_SCORE = "LAST ROUND SCORE"; // LAST ROUND SCORE /n roundNr, playedId, roundScore, shootTime
+      const SET_PLAYERS = "SET PLAYERS"; 
+      const LAST_ROUND_SCORE = "LAST ROUND SCORE";
       const START_TIMER = "START TIMER";
 
       var ws;
@@ -261,6 +270,10 @@ const char *HTML_CONTENT = R"=====(
           }
         });
 
+        if (playerNames.length == 0) {
+          alert("Please enter at least one player name");
+          return;
+        }
         openWebSocket();
       }
 
@@ -283,11 +296,9 @@ const char *HTML_CONTENT = R"=====(
         let messageToSend =
           START_GAME + "\n" + playerNames.map((name) => name).join(",") + "\n";
 
-        // Log the message to console for debugging
         console.log("Sending message:");
         console.log(messageToSend);
 
-        // Send the message via WebSocket
         ws.send(messageToSend);
 
         document.getElementById("playerTurn").textContent =
@@ -316,6 +327,7 @@ const char *HTML_CONTENT = R"=====(
       }
 
       function initiateTimer() {
+        document.getElementById("result").style.display = "none";
         ws.send(INITIATE_TIMER);
       }
 
@@ -336,8 +348,12 @@ const char *HTML_CONTENT = R"=====(
 
         let result = document.getElementById("result");
         let playerName = player.name;
-        result.textContent = `${playerName}'s score: ${roundScore} Time: ${timeBonus}s`;
 
+        if (roundScore == 0) {
+          result.textContent = `${playerName}, Too bad!`;
+        } else {
+          result.textContent = `${playerName}'s score: ${roundScore} Time: ${timeBonus}s`;
+        }
         let playerRoundScore = document.getElementById(
           `${player.name.toLowerCase()}Round${round}`
         );
@@ -355,12 +371,16 @@ const char *HTML_CONTENT = R"=====(
         let nextPlayerId;
         if (parseInt(player.id, 10) === players.length) {
           roundNr++;
+          if (roundNr > 5) {
+            endGame();
+            return;
+          }
           nextPlayerId = 1;
           document.getElementById(
             "roundTitle"
           ).textContent = `ROUND ${roundNr}`;
         } else {
-          nextPlayerId = parseInt(player.id, 10) + 1; // Ensure player is defined and has the expected id property
+          nextPlayerId = parseInt(player.id, 10) + 1;
         }
         document.getElementById("playerTurn").textContent =
           players.find((player) => player.id === nextPlayerId.toString()).name +
@@ -398,7 +418,7 @@ const char *HTML_CONTENT = R"=====(
           if (countdown > 0) {
             timerDiv.textContent = countdown;
           } else if (countdown === 0) {
-            timerDiv.textContent = "Shoot";
+            timerDiv.textContent = "Shoot!";
           } else {
             clearInterval(interval);
           }
@@ -408,6 +428,24 @@ const char *HTML_CONTENT = R"=====(
       function getAction(response) {
         let lines = response.split(/\r?\n/);
         return lines[0];
+      }
+
+      function endGame() {
+        document.getElementById("roundTitle").style.display = "none";
+        document.getElementById("playerTurn").style.display = "none";
+        document.getElementById("startTimer").style.display = "none";
+        document.getElementById("result").style.fontSize = "3rem";
+
+        let endScreen = document.getElementById("endScreen");
+
+        let winner = players.reduce((prev, current) =>
+          prev.score > current.score ? prev : current
+        );
+        endScreen.textContent = `The winner is ${winner.name} with ${winner.score} points!`;
+        endScreen.style.display = "block";
+
+        ws.close();
+        document.getElementById("connected").style.display = "none";
       }
 
       function generateTable() {
@@ -455,5 +493,4 @@ const char *HTML_CONTENT = R"=====(
     </script>
   </body>
 </html>
-
 )=====";
