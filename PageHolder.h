@@ -58,7 +58,7 @@ const char *HTML_CONTENT = R"=====(
       }
       .start-button:hover,
       .shoot-button:hover {
-        background-color: #45a049; /* Darker green on hover */
+        background-color: #45a049;
       }
       .rules {
         margin-top: 20px;
@@ -92,13 +92,13 @@ const char *HTML_CONTENT = R"=====(
         text-align: center;
       }
       .score-table th {
-        background-color: #f2f2f2; /* Light gray */
+        background-color: #f2f2f2;
         color: #333;
       }
       .header {
         display: none;
         justify-content: space-between;
-        align-items: flex-start; /* Align items to the top */
+        align-items: flex-start;
         padding: 10px;
       }
       .connected {
@@ -115,12 +115,21 @@ const char *HTML_CONTENT = R"=====(
         margin-right: 5px;
       }
       .mute-game {
-        color: #555; /* Dark gray text */
+        color: #555;
         font-size: 16px;
         font-weight: bold;
         margin-right: 10px;
         margin-top: 10px;
         align-self: flex-start;
+        background: none;
+        border: none;
+        cursor: pointer;
+        transition: background-color 0.3s, color 0.3s; 
+      }
+
+      .mute-game:hover {
+        background-color: #e0e0e0;
+        color: #333;
       }
       .round-title {
         font-size: 4rem;
@@ -140,9 +149,9 @@ const char *HTML_CONTENT = R"=====(
         display: none;
         font-size: 5rem;
         font-weight: bold;
-        color: #333; 
-        text-align: center; 
-        padding: 20px; 
+        color: #333;
+        text-align: center;
+        padding: 20px;
       }
     </style>
   </head>
@@ -152,7 +161,7 @@ const char *HTML_CONTENT = R"=====(
         <div class="connected-circle"></div>
         Connected
       </div>
-      <div class="mute-game">Mute Game</div>
+      <button class="mute-game" onclick="switchMute()">Toggle sound</button>
     </div>
     <!-- MAIN SCREEN -->
     <div class="mainScreen" id="mainScreen">
@@ -244,12 +253,12 @@ const char *HTML_CONTENT = R"=====(
 
     <script>
       //ACTIONS
-      const START_GAME = "START GAME"; 
-      const INITIATE_TIMER = "INITIATE_TIMER"; 
-      const MUTE_GAME = "MUTE GAME"; 
+      const START_GAME = "START GAME";
+      const INITIATE_TIMER = "INITIATE TIMER";
+      const MUTE_GAME = "SWITCH MUTE";
 
       //RESPONSE ACTIONS
-      const SET_PLAYERS = "SET PLAYERS"; 
+      const SET_PLAYERS = "SET PLAYERS";
       const LAST_ROUND_SCORE = "LAST ROUND SCORE";
       const START_TIMER = "START TIMER";
 
@@ -446,6 +455,10 @@ const char *HTML_CONTENT = R"=====(
 
         ws.close();
         document.getElementById("connected").style.display = "none";
+      }
+
+      function switchMute() {
+        ws.send(MUTE_GAME);
       }
 
       function generateTable() {

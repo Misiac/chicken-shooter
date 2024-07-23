@@ -15,6 +15,7 @@ private:
   int numberOfPlayers;
   int currentTurn = 1;
   int currentPlayerIndex = 0;
+  boolean isMuted = false;
   const int TURN_TIME = 7000;
   const int TIMER_TIME = 3000;
 
@@ -38,7 +39,7 @@ public:
 
       initiateTimer();
 
-    } else if (action == MUTE_GAME) {
+    } else if (action == SWITCH_MUTE) {
 
       switchBuzzerState();
     } else {
@@ -53,6 +54,7 @@ public:
     reply += generatePlayersCsv();
     const char* replyChar = reply.c_str();
     ws->send(WebSocket::DataType::TEXT, replyChar, strlen(replyChar));
+    hwController.playStart();
   }
 
   void sendCurrentTurn() {
@@ -66,7 +68,6 @@ public:
   }
 
   void initiateTimer() {
-    //start buzzer
     String reply = START_TIMER;
     const char* replyChar = reply.c_str();
     ws->send(WebSocket::DataType::TEXT, replyChar, strlen(replyChar));
@@ -74,10 +75,9 @@ public:
   }
 
   void executeTurn() {
-    Serial.println("execute turn");
-
-    delay(TIMER_TIME);  // here play 3...2...1
-    Serial.println("start");
+    if (!isMuted) {
+      hwController.playTimer();
+    }
 
     unsigned long startMs = millis();
     unsigned long endMs;
@@ -86,7 +86,9 @@ public:
     while (millis() - startMs < TURN_TIME) {
       points = hwController.handleTargetsAndReturnPoints();
       if (points > 0) {
-        //play buzzer
+        if (!isMuted) {
+          hwController.playHit();
+        }
         endMs = millis();
         break;
       }
@@ -94,13 +96,16 @@ public:
 
     if (points == 0) {
       endMs = millis();
+      if (!isMuted) {
+        hwController.playMiss();
+      }
     }
 
     float elapsedTimeInSeconds = (endMs - startMs) / 1000.0;
     float remainingTimeInSeconds = max(0.0, (TURN_TIME / 1000.0) - elapsedTimeInSeconds);
     int score = points * remainingTimeInSeconds;
 
-    char reply[64];  // Adjust size if needed
+    char reply[64];
     snprintf(reply, sizeof(reply),
              "%s\n%d,%d,%d,%.3f",
              LAST_ROUND_SCORE,
@@ -117,7 +122,11 @@ public:
     } else {
       currentPlayerIndex++;
     }
-    Serial.println(currentPlayerIndex);
+    if (currentTurn == 6) {
+      if (!isMuted) {
+        hwController.playWinner();
+      }
+    }
   }
 
   String getAction(String text) {
@@ -148,5 +157,6 @@ public:
     return csv.c_str();
   }
   void switchBuzzerState() {
+    isMuted = !isMuted;
   }
 };

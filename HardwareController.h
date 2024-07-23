@@ -4,6 +4,11 @@
 #include "elements/actuator/LEDDiode.h"
 #include "elements/actuator/Buzzer.h"
 #include "elements/sensor/Microswitch.h"
+#include "sound/TimerMelody.h"
+#include "sound/HitSound.h"
+#include "sound/GameStartMelody.h"
+#include "sound/WinnerMelody.h"
+#include "sound/MissSound.h"
 
 class HardwareController {
 private:
@@ -35,5 +40,21 @@ public:
       }
     }
     return 0;
+  }
+
+  void playTimer() {
+    TimerMelody::play(buzzer);
+  }
+  void playHit() {
+    HitSound::play(buzzer);
+  }
+  void playStart() {
+    GameStartMelody::play(buzzer);
+  }
+  void playWinner(){
+    WinnerMelody::play(buzzer);
+  }
+  void playMiss(){
+    MissSound::play(buzzer);
   }
 };

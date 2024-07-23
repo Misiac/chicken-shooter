@@ -18,9 +18,6 @@ void setup() {
 
   Serial.begin(9600);
 
-  Microswitch test(3);
-
-
   WiFiManager::connect(credentials.getSSID(), credentials.getPass());
   server.begin();
   ServerRunner::configure(wss);
@@ -29,25 +26,21 @@ void setup() {
 void loop() {
   wss.listen();
 
-  // listen for incoming clients
   WiFiClient client = server.available();
   if (client) {
 
-    // send the HTTP response header
     client.println("HTTP/1.1 200 OK");
     client.println("Content-Type: text/html");
-    client.println("Connection: close");  // the connection will be closed after completion of the response
-    client.println();                     // the separator between HTTP header and body
+    client.println("Connection: close");
+    client.println();
 
     String html = String(HTML_CONTENT);
 
     client.println(html);
     client.flush();
 
-    // give the web browser time to receive the data
     delay(50);
 
-    // close the connection:
     client.stop();
   }
 }

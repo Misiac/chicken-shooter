@@ -1,8 +1,8 @@
 
 //ACTIONS
 #define START_GAME "START GAME" // COMMAND/n players names in csv
-#define INITIATE_TIMER "INITIATE_TIMER" // COMMAND
-#define MUTE_GAME "MUTE GAME" // mutes buzzer
+#define INITIATE_TIMER "INITIATE TIMER" // COMMAND
+#define SWITCH_MUTE "SWITCH MUTE" // mutes buzzer
 
 //RESPONSES
 #define SET_PLAYERS "SET PLAYERS\n" // SET PLAYERS/n id,name,score
