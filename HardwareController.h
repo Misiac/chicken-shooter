@@ -20,12 +20,12 @@ private:
 public:
   HardwareController()
     : targets{
-        Target(LEDDiode(2), Microswitch(3), 40),
-        Target(LEDDiode(2), Microswitch(3), 30),
-        Target(LEDDiode(2), Microswitch(3), 20),
-        Target(LEDDiode(2), Microswitch(3), 10)
+        Target(LEDDiode(11), Microswitch(3), 40),
+        Target(LEDDiode(11), Microswitch(3), 30),
+        Target(LEDDiode(11), Microswitch(3), 20),
+        Target(LEDDiode(11), Microswitch(3), 10)
       },
-      buzzer(9, 2300), connectDiode(5) {
+      buzzer(9, 2300), connectDiode(12) {
   }
 
   int handleTargetsAndReturnPoints() {
@@ -48,13 +48,19 @@ public:
   void playHit() {
     HitSound::play(buzzer);
   }
-  void playStart() {
+  void playStartAndTurnConnectDiode() {
+    connectDiode.turnOn();
     GameStartMelody::play(buzzer);
   }
-  void playWinner(){
+  void playWinner() {
     WinnerMelody::play(buzzer);
   }
-  void playMiss(){
+  void playMiss() {
     MissSound::play(buzzer);
+  }
+  void resetTargets() {
+    for (int i = 0; i < NUM_TARGETS; i++) {
+      targets[i].getLedDiode().turnOff();
+    }
   }
 };

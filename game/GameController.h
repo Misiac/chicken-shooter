@@ -54,7 +54,7 @@ public:
     reply += generatePlayersCsv();
     const char* replyChar = reply.c_str();
     ws->send(WebSocket::DataType::TEXT, replyChar, strlen(replyChar));
-    hwController.playStart();
+    hwController.playStartAndTurnConnectDiode();
   }
 
   void sendCurrentTurn() {
@@ -75,6 +75,7 @@ public:
   }
 
   void executeTurn() {
+    hwController.resetTargets();
     if (!isMuted) {
       hwController.playTimer();
     }
