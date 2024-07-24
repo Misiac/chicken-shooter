@@ -21,10 +21,6 @@ public:
   GameController()
     : hwController(), ws(nullptr) {}
 
-  void setWebSocket(WebSocket& webSocket) {
-    ws = &webSocket;
-  }
-
   String react(const String& message) {
 
     String action = getAction(message);
@@ -35,8 +31,7 @@ public:
     } else if (action == INITIATE_TIMER) {
       reply = initiateTimer();
     } else if (action == SWITCH_MUTE) {
-      switchBuzzerState();
-      reply = "MUTE STATE CHANGED";
+      reply = switchBuzzerState();
     } else if (action == INITIATE_END_GAME) {
       reply = endGame();
     } else {
@@ -66,7 +61,6 @@ public:
     }
 
     unsigned long startMs = millis();
-    unsigned long endMs;
     int points = 0;
 
     while (millis() - startMs < Config::SHOOT_TIME_LIMIT) {
@@ -75,18 +69,15 @@ public:
         if (!isMuted) {
           hwController.playHit();
         }
-        endMs = millis();
         break;
       }
     }
 
-    if (points == 0) {
-      endMs = millis();
-      if (!isMuted) {
-        hwController.playMiss();
-      }
+    if (points == 0 && !isMuted) {
+      hwController.playMiss();
     }
 
+    unsigned long endMs = millis();
     float elapsedTimeInSeconds = (endMs - startMs) / 1000.0;
     float remainingTimeInSeconds = max(0.0, (Config::SHOOT_TIME_LIMIT / 1000.0) - elapsedTimeInSeconds);
     int score = points * remainingTimeInSeconds;
@@ -102,11 +93,9 @@ public:
              score,
              elapsedTimeInSeconds);
 
-    if (currentPlayerIndex + 1 == numberOfPlayers) {
+    currentPlayerIndex = (currentPlayerIndex + 1) % numberOfPlayers;
+    if (currentPlayerIndex == 0) {
       currentTurn++;
-      currentPlayerIndex = 0;
-    } else {
-      currentPlayerIndex++;
     }
 
     return String(result);
@@ -160,7 +149,8 @@ public:
     DebugLogger::log("Game Score", logMessage);
   }
 
-  void switchBuzzerState() {
+  String switchBuzzerState() {
     isMuted = !isMuted;
+    return "MUTE STATE CHANGED";
   }
 };

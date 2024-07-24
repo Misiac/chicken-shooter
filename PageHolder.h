@@ -8,7 +8,7 @@ const char *HTML_CONTENT = R"=====(
     <style>
       body {
         font-family: Arial, sans-serif;
-        background-color: #ffefd5; /* Light cream */
+        background-color: #ffefd5;
         text-align: center;
         margin: 0;
         padding: 0;
@@ -22,13 +22,13 @@ const char *HTML_CONTENT = R"=====(
       }
       .gameScreen {
         display: none;
-        color: #333; /* Dark gray text */
+        color: #333;
       }
       .title {
         padding-top: 50px;
         font-size: 5rem;
         font-weight: bold;
-        color: #ff6347; /* Tomato red */
+        color: #ff6347;
         text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
         margin-bottom: 30px;
       }
@@ -42,14 +42,14 @@ const char *HTML_CONTENT = R"=====(
       .player-turn {
         font-size: 5rem;
         margin: 20px 0;
-        color: #ff6347; /* Tomato red */
+        color: #ff6347;
       }
       .start-button,
       .shoot-button {
-        background-color: #4caf50; /* Green */
+        background-color: #4caf50;
         color: #fff;
         border: none;
-        padding: 15px 30px; /* Increased size */
+        padding: 15px 30px;
         font-size: 40px;
         cursor: pointer;
         border-radius: 5px;
@@ -70,7 +70,7 @@ const char *HTML_CONTENT = R"=====(
         max-width: 80%;
       }
       .rules h2 {
-        color: #ff6347; /* Tomato red */
+        color: #ff6347;
         font-size: 24px;
         margin-bottom: 10px;
       }
@@ -400,6 +400,7 @@ const char *HTML_CONTENT = R"=====(
       }
 
       function initiateEndGame() {
+        document.getElementById("startTimer").style.display = "none";
         ws.send(INITIATE_END_GAME);
       }
 
@@ -513,4 +514,5 @@ const char *HTML_CONTENT = R"=====(
     </script>
   </body>
 </html>
+
 )=====";
