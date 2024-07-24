@@ -17,11 +17,10 @@ public:
     return ledDiode;
   }
 
-  int getPointsIfHit() {\
+  int getPointsIfHit() {
     float sense = microswitch.sense();
     if (sense == 1) {
       return pointValue;
-
     }
     return 0;
   }

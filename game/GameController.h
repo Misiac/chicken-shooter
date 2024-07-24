@@ -25,55 +25,42 @@ public:
   void setWebSocket(WebSocket& webSocket) {
     ws = &webSocket;
   }
-  void react(const String& message) {
-    Serial.println(message);
+
+  String react(const String& message) {
 
     String action = getAction(message);
     String reply = generatePlayersCsv();
 
     if (action == START_GAME) {
-      startGame(message);
-      sendCurrentTurn();
+      reply = startGame(message);
     } else if (action == INITIATE_TIMER) {
-
-      initiateTimer();
-
+      reply = initiateTimer();
     } else if (action == SWITCH_MUTE) {
-
       switchBuzzerState();
+      reply = "MUTE STATE CHANGED";
+    } else if (action == INITIATE_END_GAME) {
+      reply = endGame();
     } else {
-      const char* reply = "ERROR";
-      ws->send(WebSocket::DataType::TEXT, reply, strlen(reply));
+      reply = "UNKNOWN ACTION";
     }
+
+    return reply;
   }
 
-  void startGame(String message) {
+  String startGame(String message) {
     createPlayers(StringUtils::getSpecificLine(message, 1));
     String reply = SET_PLAYERS;
     reply += generatePlayersCsv();
-    const char* replyChar = reply.c_str();
-    ws->send(WebSocket::DataType::TEXT, replyChar, strlen(replyChar));
     hwController.playStartAndTurnConnectDiode();
+    return reply;
   }
 
-  void sendCurrentTurn() {
-    String turn = CURRENT_TURN;
-    turn += "\n";
-    turn += currentTurn;
-    turn += ", ";
-    turn += players[currentPlayerIndex].getId();
-    const char* replyChar = turn.c_str();
-    ws->send(WebSocket::DataType::TEXT, replyChar, strlen(replyChar));
+  String initiateTimer() {
+    String reply = executeTurn();
+    return reply;
   }
 
-  void initiateTimer() {
-    String reply = START_TIMER;
-    const char* replyChar = reply.c_str();
-    ws->send(WebSocket::DataType::TEXT, replyChar, strlen(replyChar));
-    executeTurn();
-  }
-
-  void executeTurn() {
+  String executeTurn() {
     hwController.resetTargets();
     if (!isMuted) {
       hwController.playTimer();
@@ -105,8 +92,8 @@ public:
     float remainingTimeInSeconds = max(0.0, (Config::SHOOT_TIME_LIMIT / 1000.0) - elapsedTimeInSeconds);
     int score = points * remainingTimeInSeconds;
 
-    char reply[64];
-    snprintf(reply, sizeof(reply),
+    char result[64];
+    snprintf(result, sizeof(result),
              "%s\n%d,%d,%d,%.3f",
              LAST_ROUND_SCORE,
              currentTurn,
@@ -114,30 +101,33 @@ public:
              score,
              elapsedTimeInSeconds);
 
-    ws->send(WebSocket::DataType::TEXT, reply, strlen(reply));
-
     if (currentPlayerIndex + 1 == numberOfPlayers) {
       currentTurn++;
       currentPlayerIndex = 0;
     } else {
       currentPlayerIndex++;
     }
-    if (currentTurn == Config::ROUNDS_PER_GAME + 1) {
-      if (!isMuted) {
-        hwController.playWinner();
-      }
-    }
+
+    return String(result);
   }
 
   String getAction(String text) {
     return StringUtils::getSpecificLine(text, 0);
   }
 
+  String endGame() {
+    if (currentTurn == Config::ROUNDS_PER_GAME + 1) {
+      if (!isMuted) {
+        hwController.playWinner();
+      }
+    }
+    return END_GAME;
+  }
   void createPlayers(String playersCsv) {
     String* names = CsvUtils::parseCSVToArray(playersCsv);
 
     numberOfPlayers = 0;
-    while (names[numberOfPlayers] != "" && numberOfPlayers < 10) {
+    while (names[numberOfPlayers] != "" && numberOfPlayers < Config::MAX_PLAYERS) {
       numberOfPlayers++;
     }
 
@@ -148,14 +138,17 @@ public:
   }
 
   const char* generatePlayersCsv() {
-
     String csv = "id,name,score\n";
 
     for (int i = 0; i < numberOfPlayers; i++) {
-      csv += String(players[i].getId()) + "," + players[i].getName() + "," + String(players[i].getScore()) + "\n";
+      csv += String(players[i].getId()) + "," + players[i].getName() + "," + String(players[i].getScore());
+      if (i < numberOfPlayers - 1) {
+        csv += "\n";
+      }
     }
     return csv.c_str();
   }
+
   void switchBuzzerState() {
     isMuted = !isMuted;
   }

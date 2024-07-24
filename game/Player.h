@@ -10,12 +10,12 @@ private:
   int score;
 
 public:
-Player(){};
-    Player(String playerName) {
-        name = playerName;
-        id = ++prevId;
-        score = 0;
-    }
+  Player(){};
+  Player(String playerName) {
+    name = playerName;
+    id = ++prevId;
+    score = 0;
+  }
 
   int getId() {
     return id;

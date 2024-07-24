@@ -37,6 +37,7 @@ constexpr unsigned long GAME_LOOP_DELAY = 50;
 // Game Settings
 constexpr int ROUNDS_PER_GAME = 5;
 constexpr int SHOOT_TIME_LIMIT = 7000;
+constexpr int MAX_PLAYERS = 4;
 
 // Target Settings
 constexpr int NUM_TARGETS = 4;
@@ -44,4 +45,5 @@ constexpr int TARGET_POINTS[NUM_TARGETS] = { 40, 30, 20, 10 };
 
 // Debug Settings
 constexpr unsigned long SERIAL_BAUD_RATE = 9600;
+constexpr bool DEBUG_MODE = true;
 }

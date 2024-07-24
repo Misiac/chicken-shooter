@@ -124,7 +124,7 @@ const char *HTML_CONTENT = R"=====(
         background: none;
         border: none;
         cursor: pointer;
-        transition: background-color 0.3s, color 0.3s; 
+        transition: background-color 0.3s, color 0.3s;
       }
 
       .mute-game:hover {
@@ -256,11 +256,13 @@ const char *HTML_CONTENT = R"=====(
       const START_GAME = "START GAME";
       const INITIATE_TIMER = "INITIATE TIMER";
       const MUTE_GAME = "SWITCH MUTE";
+      const INITIATE_END_GAME = "INITIATE END GAME";
 
       //RESPONSE ACTIONS
       const SET_PLAYERS = "SET PLAYERS";
       const LAST_ROUND_SCORE = "LAST ROUND SCORE";
       const START_TIMER = "START TIMER";
+      const END_GAME = "END GAME";
 
       var ws;
       var wsm_max_len = 4096;
@@ -303,7 +305,7 @@ const char *HTML_CONTENT = R"=====(
         document.querySelector(".header").style.display = "flex";
 
         let messageToSend =
-          START_GAME + "\n" + playerNames.map((name) => name).join(",") + "\n";
+          START_GAME + "\n" + playerNames.map((name) => name).join(",");
 
         console.log("Sending message:");
         console.log(messageToSend);
@@ -328,16 +330,17 @@ const char *HTML_CONTENT = R"=====(
 
         if (action == SET_PLAYERS) {
           setPlayers(response);
-        } else if (action == START_TIMER) {
-          startTimer();
         } else if (action == LAST_ROUND_SCORE) {
           setRoundScore(response);
+        } else if (action == END_GAME) {
+          endGame();
         }
       }
 
       function initiateTimer() {
         document.getElementById("result").style.display = "none";
         ws.send(INITIATE_TIMER);
+        startTimer();
       }
 
       function setRoundScore(response) {
@@ -381,7 +384,7 @@ const char *HTML_CONTENT = R"=====(
         if (parseInt(player.id, 10) === players.length) {
           roundNr++;
           if (roundNr > 5) {
-            endGame();
+            initiateEndGame();
             return;
           }
           nextPlayerId = 1;
@@ -394,6 +397,10 @@ const char *HTML_CONTENT = R"=====(
         document.getElementById("playerTurn").textContent =
           players.find((player) => player.id === nextPlayerId.toString()).name +
           ", your turn";
+      }
+
+      function initiateEndGame() {
+        ws.send(INITIATE_END_GAME);
       }
 
       function setPlayers(response) {
@@ -506,4 +513,5 @@ const char *HTML_CONTENT = R"=====(
     </script>
   </body>
 </html>
+
 )=====";

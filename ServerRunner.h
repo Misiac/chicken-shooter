@@ -1,42 +1,57 @@
 #include <WebSocketServer.h>
 #include "HardwareController.h"
 #include "game/GameController.h"
+#include "data/Config.h"
+#include "util/DebugLogger.h"
 
 using namespace net;
 
 class ServerRunner {
 private:
   static GameController gameController;
+  static WebSocket* ws;
 
 public:
   static void configure(WebSocketServer& wss) {
-    static GameController gameController;
+    DebugLogger::log("Configuring WebSocket Server...");
 
-    wss.onConnection([](WebSocket& ws) {
-      const auto protocol = ws.getProtocol();
+    wss.onConnection([](WebSocket& socket) {
+      ws = &socket;
+
+      const auto protocol = ws->getProtocol();
       if (protocol) {
-        Serial.print(F("Client protocol: "));
-        Serial.println(protocol);
+        DebugLogger::log("Client protocol", protocol);
+      } else {
+        DebugLogger::log("Client protocol: None");
       }
 
-      gameController.setWebSocket(ws);
+      ws->onMessage([](WebSocket& socket, const WebSocket::DataType dataType,
+                       const char* message, uint16_t length) {
+        DebugLogger::log("Received message", message);
+        DebugLogger::log("Message length", length);
 
-      ws.onMessage([](WebSocket& ws, const WebSocket::DataType dataType,
-                      const char* message, uint16_t length) {
-         gameController.react(message);
+        String response = gameController.react(String(message));
+        socket.send(WebSocket::DataType::TEXT, response.c_str(), response.length());
+
+        DebugLogger::log(F("Sent response"), response);
       });
 
-      ws.onClose([](WebSocket&, const WebSocket::CloseCode, const char*,
-                    uint16_t) {
-        Serial.println(F("Disconnected"));
+      ws->onClose([](WebSocket&, const WebSocket::CloseCode, const char* reason,
+                     uint16_t reasonLength) {
+        if (reasonLength > 0) {
+          DebugLogger::log(F("Disconnected. Reason"), String(reason));
+        } else {
+          DebugLogger::log("Disconnected. No reason provided.");
+        }
+        ws = nullptr;
       });
-
-      Serial.print(F("New WebSocket Connection from client: "));
-      Serial.println(ws.getRemoteIP());
     });
 
     wss.begin();
-
-    Serial.println("Ending socket configuration");
+    DebugLogger::log("WebSocket Server started.");
+    DebugLogger::log("Ending socket configuration");
   }
 };
+
+GameController ServerRunner::gameController;
+WebSocket* ServerRunner::ws = nullptr;
