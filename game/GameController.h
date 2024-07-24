@@ -5,6 +5,7 @@
 #include "Player.h"
 #include "../util/StringUtils.h"
 #include "../util/CsvUtils.h"
+#include "../data/Config.h"
 
 class GameController {
 
@@ -16,8 +17,6 @@ private:
   int currentTurn = 1;
   int currentPlayerIndex = 0;
   boolean isMuted = false;
-  const int TURN_TIME = 7000;
-  const int TIMER_TIME = 3000;
 
 public:
   GameController()
@@ -84,7 +83,7 @@ public:
     unsigned long endMs;
     int points = 0;
 
-    while (millis() - startMs < TURN_TIME) {
+    while (millis() - startMs < Config::SHOOT_TIME_LIMIT) {
       points = hwController.handleTargetsAndReturnPoints();
       if (points > 0) {
         if (!isMuted) {
@@ -103,7 +102,7 @@ public:
     }
 
     float elapsedTimeInSeconds = (endMs - startMs) / 1000.0;
-    float remainingTimeInSeconds = max(0.0, (TURN_TIME / 1000.0) - elapsedTimeInSeconds);
+    float remainingTimeInSeconds = max(0.0, (Config::SHOOT_TIME_LIMIT / 1000.0) - elapsedTimeInSeconds);
     int score = points * remainingTimeInSeconds;
 
     char reply[64];
@@ -123,7 +122,7 @@ public:
     } else {
       currentPlayerIndex++;
     }
-    if (currentTurn == 6) {
+    if (currentTurn == Config::ROUNDS_PER_GAME + 1) {
       if (!isMuted) {
         hwController.playWinner();
       }

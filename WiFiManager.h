@@ -1,5 +1,7 @@
 #pragma once
+
 using namespace net;
+
 #include "data/Config.h"
 #include <WiFiS3.h>
 

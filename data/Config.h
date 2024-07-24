@@ -36,7 +36,7 @@ constexpr unsigned long GAME_LOOP_DELAY = 50;
 
 // Game Settings
 constexpr int ROUNDS_PER_GAME = 5;
-constexpr int SHOOT_TIME_LIMIT = 7000;  // 7 seconds in milliseconds
+constexpr int SHOOT_TIME_LIMIT = 7000;
 
 // Target Settings
 constexpr int NUM_TARGETS = 4;

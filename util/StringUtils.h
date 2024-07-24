@@ -7,8 +7,8 @@ public:
 
     while (currentLine < lineNumber) {
       startIndex = text.indexOf('\n', startIndex) + 1;
-      if (startIndex == 0)  // If '\n' is not found
-        return "";          // Return empty string if line number is out of range
+      if (startIndex == 0)
+        return "";
       currentLine++;
     }
 
