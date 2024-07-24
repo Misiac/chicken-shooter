@@ -5,20 +5,16 @@
 #include "ServerRunner.h"
 #include "game/Target.h"
 #include "HardwareController.h"
-#include "data/CredentialHolder.h"
 
 using namespace net;
 
-WebSocketServer wss(81);
-WiFiServer server(80);
-
-CredentialHolder credentials;
+WebSocketServer wss(Config::WEBSOCKET_PORT);
+WiFiServer server(Config::HTTP_PORT);
 
 void setup() {
+  Serial.begin(Config::SERIAL_BAUD_RATE);
 
-  Serial.begin(9600);
-
-  WiFiManager::connect(credentials.getSSID(), credentials.getPass());
+  WiFiManager::connect();
   server.begin();
   ServerRunner::configure(wss);
 }
@@ -39,8 +35,7 @@ void loop() {
     client.println(html);
     client.flush();
 
-    delay(50);
-
+    delay(Config::GAME_LOOP_DELAY);
     client.stop();
   }
 }

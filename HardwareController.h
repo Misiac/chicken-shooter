@@ -20,12 +20,12 @@ private:
 public:
   HardwareController()
     : targets{
-        Target(LEDDiode(11), Microswitch(3), 40),
-        Target(LEDDiode(11), Microswitch(3), 30),
-        Target(LEDDiode(11), Microswitch(3), 20),
-        Target(LEDDiode(11), Microswitch(3), 10)
+        Target(LEDDiode(Config::Pins::LED_TARGET_1), Microswitch(Config::Pins::MS_TARGET_1), Config::TARGET_POINTS[0]),
+        Target(LEDDiode(Config::Pins::LED_TARGET_2), Microswitch(Config::Pins::MS_TARGET_2), Config::TARGET_POINTS[1]),
+        Target(LEDDiode(Config::Pins::LED_TARGET_3), Microswitch(Config::Pins::MS_TARGET_3), Config::TARGET_POINTS[2]),
+        Target(LEDDiode(Config::Pins::LED_TARGET_4), Microswitch(Config::Pins::MS_TARGET_4), Config::TARGET_POINTS[3])
       },
-      buzzer(9, 2300), connectDiode(12) {
+      buzzer(Config::Pins::BUZZER, Config::DEFAULT_FREQUENCY), connectDiode(Config::Pins::CONNECT_DIODE) {
   }
 
   int handleTargetsAndReturnPoints() {
