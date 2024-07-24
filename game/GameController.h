@@ -3,8 +3,7 @@
 #include <WebSocket.h>
 #include "Actions.h"
 #include "Player.h"
-#include "../util/StringUtils.h"
-#include "../util/CsvUtils.h"
+#include "../util/TextUtils.h"
 #include "../data/Config.h"
 
 class GameController {
@@ -48,7 +47,7 @@ public:
   }
 
   String startGame(String message) {
-    createPlayers(StringUtils::getSpecificLine(message, 1));
+    createPlayers(TextUtils::getSpecificLine(message, 1));
     String reply = SET_PLAYERS;
     reply += generatePlayersCsv();
     hwController.playStartAndTurnConnectDiode();
@@ -124,11 +123,11 @@ public:
   }
 
   String getAction(String text) {
-    return StringUtils::getSpecificLine(text, 0);
+    return TextUtils::getSpecificLine(text, 0);
   }
 
   void createPlayers(String playersCsv) {
-    String* names = CsvUtils::parseCSVToArray(playersCsv);
+    String* names = TextUtils::parseCSVToArray(playersCsv);
 
     numberOfPlayers = 0;
     while (names[numberOfPlayers] != "" && numberOfPlayers < Config::MAX_PLAYERS) {
