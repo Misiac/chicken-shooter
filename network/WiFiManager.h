@@ -1,8 +1,8 @@
 #pragma once
 
-#include "data/Config.h"
+#include "../data/Config.h"
 #include <WiFiS3.h>
-#include "util/DebugLogger.h"
+#include "../util/DebugLogger.h"
 
 using namespace net;
 

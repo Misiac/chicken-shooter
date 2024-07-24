@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../elements/actuator/LEDDiode.h"
-#include "../elements/sensor/Microswitch.h"
+#include "../hardware/elements/actuator/LEDDiode.h"
+#include "../hardware/elements/sensor/Microswitch.h"
 
 class Target {
 private:

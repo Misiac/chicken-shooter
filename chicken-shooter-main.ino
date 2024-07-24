@@ -1,10 +1,10 @@
 #include <WiFiS3.h>
 #include <WebSocketServer.h>
-#include "PageHolder.h"
-#include "WiFiManager.h"
-#include "ServerRunner.h"
+#include "network/PageHolder.h"
+#include "network/WiFiManager.h"
+#include "network/ServerRunner.h"
 #include "game/Target.h"
-#include "HardwareController.h"
+#include "hardware/HardwareController.h"
 
 using namespace net;
 

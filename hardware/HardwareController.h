@@ -1,14 +1,14 @@
 #pragma once
 
-#include "game/Target.h"
+#include "../game/Target.h"
 #include "elements/actuator/LEDDiode.h"
 #include "elements/actuator/Buzzer.h"
 #include "elements/sensor/Microswitch.h"
-#include "sound/TimerMelody.h"
-#include "sound/HitSound.h"
-#include "sound/GameStartMelody.h"
-#include "sound/WinnerMelody.h"
-#include "sound/MissSound.h"
+#include "../sound/TimerMelody.h"
+#include "../sound/HitSound.h"
+#include "../sound/GameStartMelody.h"
+#include "../sound/WinnerMelody.h"
+#include "../sound/MissSound.h"
 
 class HardwareController {
 private:

@@ -1,5 +1,5 @@
 #pragma once
-#include "../HardwareController.h"
+#include "../hardware/HardwareController.h"
 #include <WebSocket.h>
 #include "Actions.h"
 #include "Player.h"

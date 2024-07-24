@@ -1,8 +1,8 @@
 #include <WebSocketServer.h>
-#include "HardwareController.h"
-#include "game/GameController.h"
-#include "data/Config.h"
-#include "util/DebugLogger.h"
+#include "../hardware/HardwareController.h"
+#include "../game/GameController.h"
+#include "../data/Config.h"
+#include "../util/DebugLogger.h"
 
 using namespace net;
 
