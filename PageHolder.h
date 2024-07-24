@@ -513,5 +513,4 @@ const char *HTML_CONTENT = R"=====(
     </script>
   </body>
 </html>
-
 )=====";

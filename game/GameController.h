@@ -92,6 +92,8 @@ public:
     float remainingTimeInSeconds = max(0.0, (Config::SHOOT_TIME_LIMIT / 1000.0) - elapsedTimeInSeconds);
     int score = points * remainingTimeInSeconds;
 
+    players[currentPlayerIndex].addScore(points);
+
     char result[64];
     snprintf(result, sizeof(result),
              "%s\n%d,%d,%d,%.3f",
@@ -111,18 +113,20 @@ public:
     return String(result);
   }
 
-  String getAction(String text) {
-    return StringUtils::getSpecificLine(text, 0);
-  }
-
   String endGame() {
     if (currentTurn == Config::ROUNDS_PER_GAME + 1) {
       if (!isMuted) {
+        logGameScore();
         hwController.playWinner();
       }
     }
     return END_GAME;
   }
+
+  String getAction(String text) {
+    return StringUtils::getSpecificLine(text, 0);
+  }
+
   void createPlayers(String playersCsv) {
     String* names = CsvUtils::parseCSVToArray(playersCsv);
 
@@ -141,12 +145,20 @@ public:
     String csv = "id,name,score\n";
 
     for (int i = 0; i < numberOfPlayers; i++) {
-      csv += String(players[i].getId()) + "," + players[i].getName() + "," + String(players[i].getScore());
-      if (i < numberOfPlayers - 1) {
-        csv += "\n";
-      }
+      csv += String(players[i].getId()) + "," + players[i].getName() + "," + String(players[i].getScore()) + "\n";
     }
     return csv.c_str();
+  }
+
+  void logGameScore() {
+    String logMessage;
+    for (int i = 0; i < numberOfPlayers; i++) {
+      logMessage += "Player " + String(players[i].getId()) + ": " + players[i].getName() + " - Score: " + String(players[i].getScore());
+      if (i < numberOfPlayers - 1) {
+        logMessage += "\n";
+      }
+    }
+    DebugLogger::log("Game Score", logMessage);
   }
 
   void switchBuzzerState() {

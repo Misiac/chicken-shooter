@@ -1,8 +1,9 @@
+#include "Config.h"
 class CsvUtils {
 public:
 
   static String* parseCSVToArray(const String& csv) {
-    const int maxItems = 10;  // Adjust based on your maximum expected number of items
+    const int maxItems = Config::MAX_PLAYERS;
     static String items[maxItems];
     int count = 0;
 
